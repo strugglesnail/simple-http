@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xsd:schema xmlns="http://www.struggle.com/urls"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://www.struggle.com/urls">
+
+    <xsd:complexType name="identifiedType" abstract="true">
+        <xsd:attribute name="id" type="xsd:string" use="required"/>
+    </xsd:complexType>
+
+    <!--  root元素  -->
+    <xsd:element name="urls">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="description" minOccurs="0"/>
+                <xsd:choice minOccurs="0" maxOccurs="100">
+                    <xsd:element ref="url"/>
+                </xsd:choice>
+            </xsd:sequence>
+            <xsd:attribute name="type" type="xsd:string" use="required"/>
+            <xsd:attribute name="namespace" type="xsd:string" use="required"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <!--  root子元素description  -->
+    <xsd:element name="description">
+        <xsd:complexType mixed="true">
+            <xsd:choice minOccurs="0" maxOccurs="1"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <!--root子元素 URL标签-->
+    <xsd:element name="url">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="identifiedType">
+                    <xsd:group ref="urlElements"/>
+                    <xsd:attributeGroup ref="urlAttributes"/>
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
+    <!--URL内部元素-->
+    <xsd:group name="urlElements">
+        <xsd:all>
+            <xsd:element ref="description" minOccurs="0"/>
+            <xsd:element ref="request-url" minOccurs="0" />
+            <xsd:element ref="heads" minOccurs="0" />
+            <xsd:element ref="params" minOccurs="0" />
+            <xsd:element ref="response-body" minOccurs="0"/>
+        </xsd:all>
+    </xsd:group>
+
+
+    <!--head头部参数-->
+    <xsd:element name="heads">
+        <xsd:annotation>
+            <xsd:documentation><![CDATA[设置请求头部参数]]></xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="head" minOccurs="0" maxOccurs="50"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="head" type="headType">
+        <xsd:annotation>
+            <xsd:documentation><![CDATA[设置请求头部属性, 例如: <head key='cookie' value='xxx']]></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:complexType name="headType">
+        <xsd:attribute name="key" type="xsd:string" use="required">
+            <xsd:annotation>
+                <xsd:documentation>
+                    <![CDATA[The key name of the metadata attribute being defined.]]>
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="value" type="xsd:string" use="required">
+            <xsd:annotation>
+                <xsd:documentation>
+                    <![CDATA[The value of the metadata attribute being defined (as a simple String).]]>
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <!--URL请求参数-->
+    <xsd:element name="params">
+        <xsd:annotation>
+            <xsd:documentation>
+                <![CDATA[Arbitrary metadata attached to a bean definition.]]>
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="property" minOccurs="0" maxOccurs="50"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="property" type="propertyType">
+        <xsd:annotation>
+            <xsd:documentation><![CDATA[
+	url definitions can have zero or more properties.
+	Property elements correspond to JavaBean setter methods exposed
+	by the bean classes. Spring supports primitives, references to other
+	beans in the same or related factories, lists, maps and properties.
+			]]></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:complexType name="propertyType">
+        <xsd:sequence>
+            <xsd:element ref="map" minOccurs="0" maxOccurs="1"/>
+            <xsd:element ref="list" minOccurs="0" maxOccurs="1"/>
+        </xsd:sequence>
+        <xsd:attribute name="key" type="xsd:string" use="required">
+            <xsd:annotation>
+                <xsd:documentation>
+                    <![CDATA[The key name of the metadata attribute being defined.]]>
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="value" type="xsd:string">
+            <xsd:annotation>
+                <xsd:documentation>
+                    <![CDATA[The value of the metadata attribute being defined (as a simple String).]]>
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:element name="map">
+        <xsd:annotation>
+            <xsd:documentation><![CDATA[A mapping from a key to an object. Maps may be empty.]]></xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="mapType"></xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+    <!-- 'map' element type -->
+    <xsd:complexType name="mapType">
+        <xsd:complexContent>
+            <xsd:extension base="collectionType">
+                <xsd:sequence>
+                    <xsd:choice minOccurs="0" maxOccurs="100">
+                        <xsd:element ref="entry"/>
+                    </xsd:choice>
+                </xsd:sequence>
+                <xsd:attribute name="key-type" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            <![CDATA[The default Java type for nested entry keys. Must be a fully qualifiedclass name.]]></xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!-- base type for collections that have (possibly) typed nested values -->
+    <xsd:complexType name="collectionType">
+        <xsd:attribute name="value-type" type="xsd:string">
+            <xsd:annotation>
+                <xsd:documentation>
+                    <![CDATA[The default Java type for nested values. Must be a fully qualified class name.]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+    <xsd:element name="entry" type="entryType">
+        <xsd:annotation>
+            <xsd:documentation>
+                <![CDATA[A map entry can be an inner bean, ref, value, or collection. The key of the entry is given by the "key" attribute or child element.]]></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <!-- 'entry' element type -->
+    <xsd:complexType name="entryType">
+        <xsd:attribute name="key" type="xsd:string"/>
+        <xsd:attribute name="value" type="xsd:string"/>
+        <xsd:attribute name="value-type" type="xsd:string"/>
+    </xsd:complexType>
+
+
+    <xsd:element name="list">
+        <xsd:annotation>
+            <xsd:documentation>
+                <![CDATA[A list can map to an array type; the necessary conversion is performed automatically.]]></xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="listType">
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
+    <!-- 'list' and 'set' collection type -->
+    <xsd:complexType name="listType">
+        <xsd:complexContent>
+            <xsd:extension base="collectionType">
+                <xsd:group ref="collectionElements"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <!-- Collection Elements -->
+    <xsd:group name="collectionElements">
+        <xsd:sequence>
+            <xsd:choice minOccurs="0" maxOccurs="10">
+                <xsd:element ref="ref"/>
+                <xsd:element ref="list"/>
+                <xsd:element ref="map"/>
+<!--                <xsd:any namespace="##other" processContents="strict" minOccurs="0" maxOccurs="unbounded"/>-->
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:group>
+
+
+    <!--关联其他URL标签-->
+<!--    <xsd:element name="refs">-->
+<!--        <xsd:annotation>-->
+<!--            <xsd:documentation>-->
+<!--                <![CDATA[关联URL标签ID]]>&ndash;&gt;-->
+<!--            </xsd:documentation>-->
+<!--        </xsd:annotation>-->
+<!--        <xsd:complexType>-->
+<!--            <xsd:sequence>-->
+<!--                <xsd:element ref="ref" minOccurs="0" maxOccurs="unbounded"/>-->
+<!--            </xsd:sequence>-->
+<!--        </xsd:complexType>-->
+<!--    </xsd:element>-->
+    <xsd:element name="ref" type="refType">
+        <xsd:annotation>
+            <xsd:documentation><![CDATA[
+			]]></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:complexType name="refType">
+        <xsd:attribute name="id" type="xsd:string" use="required">
+            <xsd:annotation>
+                <xsd:documentation>
+                    <![CDATA[URL关联ID]]>
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <!--URL属性-->
+    <xsd:attributeGroup name="urlAttributes">
+        <xsd:attribute name="request-method" type="xsd:string" use="required"/>
+        <xsd:attribute name="result-type" type="xsd:string"/>
+        <xsd:attribute name="retry" type="xsd:string" default="0"/>
+        <xsd:attribute name="executor" type="xsd:string"/>
+<!--        <xsd:anyAttribute namespace="##other" processContents="lax"/>-->
+    </xsd:attributeGroup>
+
+
+    <xsd:element name="request-url">
+
+    </xsd:element>
+
+    <xsd:element name="response-body">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="body"></xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="body">
+
+    </xsd:element>
+
+
+</xsd:schema>
+
